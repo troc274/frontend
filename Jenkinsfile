@@ -28,7 +28,7 @@ pipeline {
                 // Copy the built files to the frontend dist directory for Nginx
                 script {
                     echo 'Deploying to Nginx...'
-                    sh 'pwd && cp -R dist/* /usr/share/nginx/html/'  // Adjust this path as per your setup
+                    sh 'cp -R dist/* /usr/share/nginx/html/'
                 }
             }
         }
