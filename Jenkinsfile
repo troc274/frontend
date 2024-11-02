@@ -27,8 +27,9 @@ pipeline {
             steps {
                 // Copy the built files to the frontend dist directory for Nginx
                 script {
-                    echo 'Deploying to Nginx...'
-                    sh 'npm install -g serve && serve -s dist -l 3000 '
+                    echo 'Building...'
+                    sh 'npm install -g serve && npm install -g pm2'
+                    sh 'pm2 start "npx serve -s build -l 5000" --name react-app'
                 }
             }
         }
