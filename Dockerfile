@@ -1,18 +1,29 @@
-FROM jenkins/inbound-agent:latest
+# Use a Node.js base image for building the application
+FROM node:18 AS builder
 
-# Switch to root user to install dependencies
-USER root
+# Set the working directory
+WORKDIR /app
 
-# Install Node.js and npm
-RUN apt-get update && \
-    apt-get install -y curl && \
-    curl -sL https://deb.nodesource.com/setup_18.x | bash - && \
-    apt-get install -y nodejs && \
-    npm install -g npm@latest && \
-    apt-get clean
+# Copy the package.json and package-lock.json files
+COPY package*.json ./
 
-# Revert to jenkins user
-USER jenkins
+# Install dependencies
+RUN npm install
 
-# Expose default JNLP port
-EXPOSE 50000
+# Copy the rest of the application files
+COPY . .
+
+# Build the application
+RUN npm run build
+
+# Stage 2: Use a lightweight web server to serve the built files
+FROM nginx:alpine
+
+# Copy the built files from the previous stage to the Nginx web root
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Expose port 80
+EXPOSE 8081
+
+# Start Nginx server
+CMD ["nginx", "-g", "daemon off;"]
