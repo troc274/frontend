@@ -19,19 +19,6 @@ pipeline {
                 }
             }
         }
-
-        stage('Deploy to Nginx') {
-            agent {
-                label 'react-agent'  // Use the same agent for deploying
-            }
-            steps {
-                // Copy the built files to the frontend dist directory for Nginx
-                script {
-                    echo 'Deploying to Nginx...'
-                    sh 'cp -R dist/* /usr/share/nginx/html/'
-                }
-            }
-        }
     }
 
     post {
