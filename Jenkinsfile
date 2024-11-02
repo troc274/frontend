@@ -1,22 +1,45 @@
 pipeline {
-    agent {
-        label 'react-agent'  // Assign to the specific Jenkins slave for building React
-    }
+    agent none  // Disable the default agent at the pipeline level
     stages {
-        stage('Checkout Code') {
+        stage('React Build') {
+            agent {
+                label 'react-agent'  // Use the label defined for the `jenkins-slave-react` agent in docker-compose
+            }
             steps {
-                checkout scm  // Pulls the code from the connected SCM repository
+                // Checkout the repository
+                checkout scm
+                
+                // Install dependencies and build the project
+                script {
+                    echo 'Installing dependencies...'
+                    sh 'npm install'  // Ensure npm is installed on the react-slave image
+
+                    echo 'Building the project...'
+                    sh 'npm run build'
+                }
             }
         }
-        stage('Install Dependencies') {
+        
+        stage('Deploy to Nginx') {
+            agent {
+                label 'react-agent'  // Use the same agent for deploying
+            }
             steps {
-                sh 'npm install'
+                // Copy the built files to the frontend dist directory for Nginx
+                script {
+                    echo 'Deploying to Nginx...'
+                    sh 'cp -R build/* /usr/share/nginx/html/'  // Adjust this path as per your setup
+                }
             }
         }
-        stage('Build') {
-            steps {
-                sh 'npm run build'
-            }
+    }
+    
+    post {
+        success {
+            echo 'Build and deployment completed successfully.'
+        }
+        failure {
+            echo 'There was a failure in the build or deployment process.'
         }
     }
 }
