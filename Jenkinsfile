@@ -27,12 +27,7 @@ pipeline {
                 script {
                     // Check if the image exists and remove it
                     sh '''
-                    if [ $(docker images -q ${IMAGE_NAME}) ]; then
-                        echo "Removing existing image ${IMAGE_NAME}..."
-                        docker rmi -f ${IMAGE_NAME}
-                    else
-                        echo "No image found with the name ${IMAGE_NAME}."
-                    fi
+                    docker rmi -f ${IMAGE_NAME} || true
                     '''
                 }
             }
