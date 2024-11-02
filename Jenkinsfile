@@ -25,6 +25,16 @@ pipeline {
         stage('Deploy and Run') {
             steps {
                 script {
+                    // Stop and remove the container if it is running
+                    sh '''
+                    if [ $(docker ps -q -f name=${CONTAINER_NAME}) ]; then
+                        echo "Stopping existing container..."
+                        docker stop ${CONTAINER_NAME}
+                        docker rm ${CONTAINER_NAME}
+                    else
+                        echo "No running container found with the name ${CONTAINER_NAME}."
+                    fi
+                    '''
                     // Run the container to serve the application
                     sh "docker run -d --name react-app -p 3000:80 ${IMAGE_NAME}"
                 }
