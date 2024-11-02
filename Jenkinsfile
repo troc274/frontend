@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         IMAGE_NAME = "thonguyen2749/devops-hello-world:frontend"  // Replace with your desired image name
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub')  // DockerHub credentials
+        DOCKERHUB_CREDENTIALS = credentials('8eb68f23-6497-4663-a47e-7f7045461567')  // DockerHub credentials
     }
 
     stages {
