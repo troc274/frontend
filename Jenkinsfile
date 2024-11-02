@@ -16,6 +16,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
+                    sh "docker rmi -f ${IMAGE_NAME} || true"
                     // Build the Docker image using the Dockerfile in the repository
                     docker.build("${IMAGE_NAME}", ".")
                 }
