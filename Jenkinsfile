@@ -19,6 +19,19 @@ pipeline {
                 }
             }
         }
+
+        stage('Deploy to Nginx') {
+            agent {
+                label 'react-agent'  // Use the same agent for deploying
+            }
+            steps {
+                // Copy the built files to the frontend dist directory for Nginx
+                script {
+                    echo 'Deploying to Nginx...'
+                    sh 'npm install -g serve && serve -s serve --port 3000'
+                }
+            }
+        }
     }
 
     post {
