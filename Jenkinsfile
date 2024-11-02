@@ -8,7 +8,7 @@ pipeline {
             steps {
                 // Checkout the repository
                 checkout scm
-                
+
                 // Install dependencies and build the project
                 script {
                     echo 'Installing dependencies...'
@@ -19,7 +19,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Deploy to Nginx') {
             agent {
                 label 'react-agent'  // Use the same agent for deploying
@@ -33,7 +33,7 @@ pipeline {
             }
         }
     }
-    
+
     post {
         success {
             echo 'Build and deployment completed successfully.'
