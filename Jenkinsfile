@@ -22,19 +22,26 @@ pipeline {
             }
         }
 
+        stage('Remove Existing Image') {
+            steps {
+                script {
+                    // Check if the image exists and remove it
+                    sh '''
+                    if [ $(docker images -q ${IMAGE_NAME}) ]; then
+                        echo "Removing existing image ${IMAGE_NAME}..."
+                        docker rmi -f ${IMAGE_NAME}
+                    else
+                        echo "No image found with the name ${IMAGE_NAME}."
+                    fi
+                    '''
+                }
+            }
+        }
+
+
         stage('Deploy and Run') {
             steps {
                 script {
-                    // Stop and remove the container if it is running
-                    sh '''
-                    if [ $(docker ps -q -f name=${IMAGE_NAME}) ]; then
-                        echo "Stopping existing container..."
-                        docker stop ${IMAGE_NAME}
-                        docker rm ${IMAGE_NAME}
-                    else
-                        echo "No running container found with the name ${IMAGE_NAME}."
-                    fi
-                    '''
                     // Run the container to serve the application
                     sh "docker run -d --name react-app -p 3000:80 ${IMAGE_NAME}"
                 }
