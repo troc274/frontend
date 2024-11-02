@@ -1,46 +1,53 @@
 pipeline {
-    agent none  // Disable the default agent at the pipeline level
+    agent any  // Use any available agent
+
+    environment {
+        IMAGE_NAME = "thonguyen2749/devops-hello-world:frontend"  // Replace with your desired image name
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub')  // DockerHub credentials
+    }
+
     stages {
-        stage('React Build') {
-            agent {
-                label 'react-agent'  // Use the label defined for the `jenkins-slave-react` agent in docker-compose
-            }
+        stage('Checkout Code') {
             steps {
-                // Checkout the repository
+                // Check out the code from the repository
                 checkout scm
-
-                // Install dependencies and build the project
+            }
+        }
+        
+        stage('Build Docker Image') {
+            steps {
                 script {
-                    echo 'Installing dependencies...'
-                    sh 'npm install'  // Ensure npm is installed on the react-slave image
-
-                    echo 'Building the project...'
-                    sh 'npm run build'
+                    // Build the Docker image for the React app
+                    docker.build("${IMAGE_NAME}", ".")
+                }
+            }
+        }
+        
+        stage('Run Docker Container') {
+            steps {
+                script {
+                    // Run the built Docker image in detached mode
+                    docker.image("${IMAGE_NAME}").run("-d -p 5000:5000")
                 }
             }
         }
 
-        stage('Deploy to Nginx') {
-            agent {
-                label 'react-agent'  // Use the same agent for deploying
-            }
+        stage('Clean Up') {
             steps {
-                // Copy the built files to the frontend dist directory for Nginx
                 script {
-                    echo 'Building...'
-                    sh 'npm install -g serve && npm install -g pm2'
-                    sh 'npx serve -s'
+                    // Optionally remove dangling images to save space
+                    sh 'docker image prune -f'
                 }
             }
         }
     }
 
     post {
-        success {
-            echo 'Build and deployment completed successfully.'
+        always {
+            echo 'Pipeline execution complete.'
         }
         failure {
-            echo 'There was a failure in the build or deployment process.'
+            echo 'The build or deployment failed.'
         }
     }
 }
