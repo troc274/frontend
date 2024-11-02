@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        IMAGE_NAME = "myusername/my-frontend-app"  // Replace with your Docker image name
+        IMAGE_NAME = "thonguyen2749/devops-hello-world:frontend"  // Replace with your Docker image name
         DOCKERHUB_CREDENTIALS = credentials('8eb68f23-6497-4663-a47e-7f7045461567')  // Use your DockerHub credentials ID in Jenkins
     }
 
@@ -22,22 +22,11 @@ pipeline {
             }
         }
 
-        stage('Push Docker Image') {
-            steps {
-                script {
-                    // Log in to Docker Hub and push the image
-                    docker.withRegistry('https://index.docker.io/v1/', "${DOCKERHUB_CREDENTIALS}") {
-                        docker.image("${IMAGE_NAME}").push("latest")
-                    }
-                }
-            }
-        }
-
         stage('Deploy and Run') {
             steps {
                 script {
                     // Run the container to serve the application
-                    docker.image("${IMAGE_NAME}").run("-d -p 8081:8081")
+                    sh "docker run -d --name react-app -p 3000:80 ${IMAGE_NAME}"
                 }
             }
         }
