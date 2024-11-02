@@ -29,7 +29,7 @@ pipeline {
                 script {
                     echo 'Building...'
                     sh 'npm install -g serve && npm install -g pm2'
-                    sh 'pm2 start "npx serve -s build -l 3000" --name react-app'
+                    sh 'npx serve -s'
                 }
             }
         }
