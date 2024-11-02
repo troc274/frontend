@@ -37,7 +37,7 @@ pipeline {
             steps {
                 script {
                     // Run the container to serve the application
-                    docker.image("${IMAGE_NAME}").run("-d -p 80:80")
+                    docker.image("${IMAGE_NAME}").run("-d -p 8081:8081")
                 }
             }
         }
