@@ -16,20 +16,10 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
+                    sh "docker rm -f react-app || true"
                     sh "docker rmi -f ${IMAGE_NAME} || true"
                     // Build the Docker image using the Dockerfile in the repository
                     docker.build("${IMAGE_NAME}", ".")
-                }
-            }
-        }
-
-        stage('Remove Existing Image') {
-            steps {
-                script {
-                    // Check if the image exists and remove it
-                    sh '''
-                    docker rmi -f ${IMAGE_NAME} || true
-                    '''
                 }
             }
         }
