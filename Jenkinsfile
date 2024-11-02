@@ -27,12 +27,12 @@ pipeline {
                 script {
                     // Stop and remove the container if it is running
                     sh '''
-                    if [ $(docker ps -q -f name=${CONTAINER_NAME}) ]; then
+                    if [ $(docker ps -q -f name=${IMAGE_NAME}) ]; then
                         echo "Stopping existing container..."
-                        docker stop ${CONTAINER_NAME}
-                        docker rm ${CONTAINER_NAME}
+                        docker stop ${IMAGE_NAME}
+                        docker rm ${IMAGE_NAME}
                     else
-                        echo "No running container found with the name ${CONTAINER_NAME}."
+                        echo "No running container found with the name ${IMAGE_NAME}."
                     fi
                     '''
                     // Run the container to serve the application
