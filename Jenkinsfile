@@ -28,7 +28,7 @@ pipeline {
                 // Copy the built files to the frontend dist directory for Nginx
                 script {
                     echo 'Deploying to Nginx...'
-                    sh 'npm install -g serve && serve -s serve --port 3000'
+                    sh 'npm install -g serve && serve -s dist -l 3000 '
                 }
             }
         }
