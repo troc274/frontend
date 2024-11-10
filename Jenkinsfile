@@ -1,46 +1,56 @@
 pipeline {
     agent any
+
     environment {
-        IMAGE_NAME = "thonguyen2749/devops-hello-world:frontend"  // Replace with your Docker image name
-        DOCKERHUB_CREDENTIALS = credentials('8eb68f23-6497-4663-a47e-7f7045461567')  // Use your DockerHub credentials ID in Jenkins
+        DOCKER_CREDENTIALS_ID = credentials('b6d863d8-ad57-4775-b6f9-4b2b6c46be9e')
+        DOCKER_HUB_USERNAME = 'thonguyen2749'
+        FRONTEND_IMAGE = "${DOCKER_HUB_USERNAME}/devops-frontend"
     }
 
     stages {
-        stage('Checkout Code') {
+        stage('Checkout') {
             steps {
-                // Check out the code from the repository
+                // Clone the Git repository and get the commit ID
                 checkout scm
-            }
-        }
-        
-        stage('Build Docker Image') {
-            steps {
                 script {
-                    sh "docker rm -f react-app || true"
-                    sh "docker rmi -f ${IMAGE_NAME} || true"
-                    // Build the Docker image using the Dockerfile in the repository
-                    docker.build("${IMAGE_NAME}", ".")
+                    COMMIT_ID = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
                 }
             }
         }
 
-
-        stage('Deploy and Run') {
+        stage('Build and Push Frontend Docker Image') {
             steps {
                 script {
-                    // Run the container to serve the application
-                    sh "docker run -d --name react-app -p 3000:80 ${IMAGE_NAME}"
+                    docker.withRegistry('https://registry.hub.docker.com', DOCKER_CREDENTIALS_ID) {
+                        // Build the Docker image with the commit ID as a tag
+                        def frontendImage = docker.build("${FRONTEND_IMAGE}:${COMMIT_ID}", '.')
+
+                        // Push the image with the commit ID as the tag
+                        frontendImage.push("${COMMIT_ID}")
+
+                        // Optionally push with "latest" tag as well
+                        frontendImage.push('latest')
+                    }
                 }
             }
         }
+
+        // stage('Deploy Frontend') {
+        //     steps {
+        //         script {
+        //             // Deploy with Docker Compose or other method if required
+        //             sh 'docker-compose up -d frontend'
+        //         }
+        //     }
+        // }
     }
 
     post {
-        always {
-            echo 'Pipeline execution complete.'
+        success {
+            echo 'Frontend pipeline completed successfully!'
         }
         failure {
-            echo 'The build or deployment failed.'
+            echo 'Frontend pipeline failed.'
         }
     }
 }
